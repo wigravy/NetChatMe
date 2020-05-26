@@ -3,6 +3,7 @@ package source;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -11,7 +12,7 @@ import javafx.scene.input.MouseEvent;
 
 public class Controller {
     @FXML
-    private Button sendMSGButton;
+    private Button sendMessageButton;
 
     @FXML
     public javafx.scene.control.TextArea messages;
@@ -21,26 +22,29 @@ public class Controller {
 
     @FXML
     private void sendMessageOnClick(MouseEvent event) {
-        if (event.getButton().equals(MouseButton.PRIMARY) && !writingTextArea.getText().trim().isEmpty()) {
+        if (event.getButton().equals(MouseButton.PRIMARY)) {
             sendMessage();
         }
     }
 
-
     @FXML
     private void sendMessageOnEnter(javafx.scene.input.KeyEvent keyEvent) {
-        if ((keyEvent.getCode() == KeyCode.ENTER) && (!writingTextArea.getText().trim().isEmpty())) {
-           sendMessage();
-        } else if ((keyEvent.getCode() == KeyCode.ENTER)){
-            writingTextArea.clear();
+        if ((keyEvent.getCode() == KeyCode.ENTER)) {
+            sendMessage();
+            keyEvent.consume();
         }
     }
 
     private void sendMessage() {
-        messages.appendText(writingTextArea.getText());
-        messages.appendText("\n");
-        writingTextArea.clear();
-        writingTextArea.requestFocus();
+        if (!writingTextArea.getText().trim().isEmpty()) {
+            messages.appendText(writingTextArea.getText().trim());
+            messages.appendText("\n");
+            writingTextArea.clear();
+            writingTextArea.requestFocus();
+        } else {
+            writingTextArea.clear();
+            writingTextArea.requestFocus();
+        }
     }
 
     @FXML
@@ -52,8 +56,6 @@ public class Controller {
         writingTextArea.setPromptText("Напишите сообщение...");
         writingTextArea.requestFocus();
         writingTextArea.setWrapText(true);
-
+        sendMessageButton.setTooltip(new Tooltip("Отправить сообщение"));
     }
-
-
 }
