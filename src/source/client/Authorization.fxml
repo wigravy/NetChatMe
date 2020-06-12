@@ -31,7 +31,7 @@
                   <Insets bottom="20.0" />
                </VBox.margin>
             </Label>
-            <Label alignment="CENTER" fx:id="incorrectUsernameOrPasswordLabel" contentDisplay="CENTER" visible="false" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" stylesheets="@../../styles/Style.css" text="Incorrect username or password." textFill="RED">
+            <Label fx:id="incorrectUsernameOrPasswordLabel" wrapText="true" textAlignment="CENTER" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="40.0" prefWidth="300.0" stylesheets="@../../styles/Style.css" visible="false">
                <font>
                   <Font name="Century" size="18.0" />
                </font>
@@ -40,6 +40,9 @@
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
+               <font>
+                  <Font size="14.0" />
+               </font>
             </Label>
             <GridPane alignment="CENTER">
               <columnConstraints>
@@ -67,14 +70,14 @@
                         <Insets right="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <TextField fx:id="username" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="200.0" GridPane.columnIndex="1" />
-                  <PasswordField fx:id="password" onAction="#login" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="username" promptText="username" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="200.0" GridPane.columnIndex="1" />
+                  <PasswordField fx:id="password" promptText="password" maxHeight="-Infinity" maxWidth="-Infinity" onAction="#login" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
                <VBox.margin>
                   <Insets />
                </VBox.margin>
             </GridPane>
-            <Button onAction="#login" mnemonicParsing="false" text="Login">
+            <Button fx:id="buttonLogin" alignment="CENTER" minHeight="45.0" minWidth="80.0" mnemonicParsing="false" onAction="#login" stylesheets="@../../styles/Style.css" text="Login">
                <font>
                   <Font size="18.0" />
                </font>
@@ -82,9 +85,9 @@
                   <Insets top="20.0" />
                </VBox.margin>
             </Button>
-            <Button onAction="#cancel" mnemonicParsing="false" text="Cancel">
+            <Button fx:id="buttonCancel" alignment="CENTER" contentDisplay="CENTER" minHeight="45.0" minWidth="80.0" mnemonicParsing="false" onAction="#cancel" stylesheets="@../../styles/Style.css" text="Cancel">
                <font>
-                  <Font size="14.0" />
+                  <Font size="18.0" />
                </font>
                <VBox.margin>
                   <Insets top="20.0" />
