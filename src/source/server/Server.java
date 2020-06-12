@@ -1,10 +1,6 @@
 package source.server;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import source.client.ClientHandler;
-import source.server.AuthorizationServer;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,34 +9,22 @@ import java.util.List;
 
 public class Server {
     private static final int PORT = 8030;
-    private List<ClientHandler> clients;
+    private  List<ClientHandler> clients;
     private AuthorizationServer authorizationServer;
 
     public AuthorizationServer getAuthService() {
         return authorizationServer;
     }
 
-
-
-    private static List<String> clientsList = new ArrayList<>();
-
-    public List<String> getClientsList() {
-        return clientsList;
+    public synchronized void broadcastsClients(String command) {
+        StringBuilder clientsList = new StringBuilder(command);
+        for (ClientHandler client : clients) {
+            clientsList.append(client.getNickname() + " ");
+        }
+        broadcast(clientsList.toString());
     }
 
-    public void addClientToList(String nickname) {
-        clientsList.add(nickname);
-    }
-
-    public void removeClientFromList(String nickname) {
-        clientsList.remove(nickname);
-    }
-
-
-
-
-    public Server() {
-        clientsList.add("Список клиентов:");
+    Server() {
         try (ServerSocket server = new ServerSocket(PORT)) {
             authorizationServer = new AuthorizationServer();
             clients = new ArrayList<>();
@@ -58,10 +42,12 @@ public class Server {
 
     public synchronized void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastsClients("/clientDisconnected ");
     }
 
     public synchronized void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastsClients("/clientConnected ");
     }
 
     public synchronized void broadcast(String s) {
@@ -86,6 +72,7 @@ public class Server {
                     client.sendMessage("Server: " + nick + " is offline, try later.");
                     break;
                 }
+
             }
         }
     }

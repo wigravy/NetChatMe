@@ -1,10 +1,37 @@
-.button {
+#buttonCancel.button {
+    -fx-background-color: #b3110a;
+    -fx-effect: dropshadow(three-pass-box, #858585, 5, 0.0, 0, 1);
+    -fx-text-fill: #f2f8f2;
+}
+
+#buttonCancel.button:hover {
+    -fx-background-color: #ff0018;
+    -fx-text-fill: #f2f8f2;
+}
+
+#buttonLogin.button {
+    -fx-background-color: #009825;
+    -fx-effect: dropshadow(three-pass-box, #858585, 5, 0.0, 0, 1);
+    -fx-text-fill: #f2f8f2;
+}
+
+#buttonLogin.button:hover {
+    -fx-background-color: #00d025;
+    -fx-text-fill: #f2f8f2;
+}
+
+
+#buttonSendMessage.button {
+    -fx-content-display: RIGHT;
     -fx-background-color: #ffffff;
     -fx-effect: dropshadow(three-pass-box, #858585, 5, 0.0, 0, 1);
 }
-.button:hover {
+
+#buttonSendMessage.button:hover {
     -fx-background-color: #0dc60a;
 }
+
+
 
 .label {
     -fx-background-color: #ffc9bd;

@@ -2,11 +2,14 @@ package source.client;
 
 
 import source.server.Server;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ClientHandler {
     private Server server;
@@ -33,14 +36,11 @@ public class ClientHandler {
                     readMessages();
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                } finally {
-                    closeConnection();
                 }
             }).start();
         } catch (IOException e) {
             throw new RuntimeException("Ошибка создания клиента.");
         }
-
     }
 
 
@@ -64,46 +64,62 @@ public class ClientHandler {
                 if (message.startsWith("/")) {
                     String[] tmp = message.split(" ", 3);
                     if (message.startsWith("/w")) {
-                        server.sendPrivateMessage(nickname, tmp[1], tmp[2]);
+                        if (nickname.equals(tmp[1])) {
+                            sendMessage("Server: You cannot send private messages to yourself");
+                        } else {
+                            server.sendPrivateMessage(nickname, tmp[1], tmp[2]);
+                        }
                     } else if (message.equals("/end")) {
-                        server.unsubscribe(this);
-                        server.removeClientFromList(nickname);
+                        closeConnection();
                         return;
                     }
                 } else {
-                    server.broadcast(nickname + ": " + message);
+                    server.broadcast(getCurrentTime() + " " + nickname + ": " + message);
                 }
             }
         }
     }
 
+    private String getCurrentTime() {
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        return dateFormat.format(date);
+    }
+
     private void authenticate() throws IOException {
+        long timeout = System.currentTimeMillis() + 120000;
         while (true) {
-            if (dataInputStream.available() > 0) {
-                String str = dataInputStream.readUTF();
-                if (str.startsWith("/auth")) {
-                    String[] parts = str.split("\\s");
-                    String nick = server.getAuthService().getNickByLoginAndPwd(parts[1], parts[2]);
-                    if (nick != null) {
-                        if (!server.isNickLogged(nick)) {
-                            System.out.println(nick + " logged into chat");
-                            nickname = nick;
-                            sendMessage("/auth OK");
-                            server.broadcast(nick + " is in chat");
-                            server.subscribe(this);
-                            server.addClientToList(nick);
-                            return;
+            if (System.currentTimeMillis() < timeout) {
+                if (dataInputStream.available() > 0) {
+                    String str = dataInputStream.readUTF();
+                    if (str.startsWith("/auth")) {
+                        String[] parts = str.split("\\s");
+                        String nick = server.getAuthService().getNickByLoginAndPwd(parts[1], parts[2]);
+                        if (nick != null) {
+                            if (!server.isNickLogged(nick)) {
+                                System.out.println(nick + " logged into chat");
+                                nickname = nick;
+                                sendMessage("/auth OK");
+                                server.broadcast(nick + " is in chat");
+                                server.subscribe(this);
+                                return;
+                            } else {
+                                System.out.println("User " + nick + " tried to re-enter");
+                                sendMessage("User already logged in");
+                            }
                         } else {
-                            System.out.println("User " + nick + " tried to re-enter");
-                            sendMessage("User already logged in");
+                            System.out.println("Wrong login/password");
+                            sendMessage("/false");
                         }
-                    } else {
-                        System.out.println("Wrong login/password");
-                        sendMessage("false");
                     }
                 }
+            } else {
+                sendMessage("/end");
+                System.out.println("Клиент был отключен за неактив (Прошло > 120 сек)");
+                socket.close();
+                break;
             }
-
         }
     }
 
