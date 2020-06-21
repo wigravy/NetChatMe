@@ -48,7 +48,7 @@ public class ClientController {
 
     @FXML
     private void initialize() {
-        Image image = new Image("\\resources\\send.png");
+        Image image = new Image("resources/send.png");
         ImageView imageView = new ImageView(image);
         buttonSendMessage.setGraphic(imageView);
         start();

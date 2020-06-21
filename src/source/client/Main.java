@@ -16,7 +16,6 @@ public class Main extends Application {
     private static final String PROJECT_NAME = "NetChatMe";
     private static Scene scene;
 
-
     public static DataInputStream getInputStream() {
         return inputStream;
     }
@@ -46,7 +45,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("Authorization.fxml"));
         scene = new Scene(root, 500, 700);
-        primaryStage.getIcons().add(new Image("\\resources\\icon.png"));
+        primaryStage.getIcons().add(new Image("resources/icon.png"));
         primaryStage.setTitle(PROJECT_NAME + " " + VERSION);
         primaryStage.setScene(scene);
         primaryStage.setMinHeight(700);
@@ -61,11 +60,7 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         });
-
     }
-
-
-
 
     public static void main(String[] args) {
         try {

@@ -12,10 +12,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class ClientHandler {
-    private Server server;
-    private Socket socket;
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
+    private final Server server;
+    private final Socket socket;
+    private final DataInputStream dataInputStream;
+    private final DataOutputStream dataOutputStream;
     private String nickname;
 
     public String getNickname() {

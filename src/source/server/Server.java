@@ -12,6 +12,7 @@ public class Server {
     private  List<ClientHandler> clients;
     private AuthorizationServer authorizationServer;
 
+
     public AuthorizationServer getAuthService() {
         return authorizationServer;
     }
@@ -24,7 +25,10 @@ public class Server {
         broadcast(clientsList.toString());
     }
 
+
+
     Server() {
+
         try (ServerSocket server = new ServerSocket(PORT)) {
             authorizationServer = new AuthorizationServer();
             clients = new ArrayList<>();
