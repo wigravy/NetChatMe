@@ -34,6 +34,27 @@ public class AuthorizationServer {
         connectToDB();
     }
 
+    public void closeConnection() {
+        try {
+            if (!connectionToDb.isClosed()) {
+                connectionToDb.close();
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public boolean changeNickname(String login, String nickname) {
+        try {
+            PreparedStatement statement = connectionToDb.prepareStatement("UPDATE users SET nickname = '" + nickname + "' WHERE login = '" + login + "';");
+            int result = statement.executeUpdate();
+            return result > 0;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
+    }
+
 
     public String getNickByLoginAndPwd(String login, String password) {
         try {
@@ -46,8 +67,6 @@ public class AuthorizationServer {
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-        } finally {
-
         }
         return null;
     }

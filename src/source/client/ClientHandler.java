@@ -17,9 +17,15 @@ public class ClientHandler {
     private final DataInputStream dataInputStream;
     private final DataOutputStream dataOutputStream;
     private String nickname;
+    private String login;
+
 
     public String getNickname() {
         return nickname;
+    }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
     }
 
 
@@ -39,7 +45,7 @@ public class ClientHandler {
                 }
             }).start();
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка создания клиента.");
+            throw new RuntimeException("Error creating client");
         }
     }
 
@@ -53,8 +59,8 @@ public class ClientHandler {
             ex.printStackTrace();
         }
         server.unsubscribe(this);
-        server.broadcast("Пользователь " + nickname + " вышел из чата.");
-        System.out.println(nickname + " отключился от сервера.");
+        server.broadcast("User  " + nickname + " leave chat.");
+        System.out.println(nickname + " disconnected from server.");
     }
 
     private void readMessages() throws IOException {
@@ -62,7 +68,7 @@ public class ClientHandler {
             if (dataInputStream.available() > 0) {
                 String message = dataInputStream.readUTF();
                 if (message.startsWith("/")) {
-                    String[] tmp = message.split(" ", 3);
+                    String[] tmp = message.split("\\s", 3);
                     if (message.startsWith("/w")) {
                         if (nickname.equals(tmp[1])) {
                             sendMessage("Server: You cannot send private messages to yourself");
@@ -72,6 +78,15 @@ public class ClientHandler {
                     } else if (message.equals("/end")) {
                         closeConnection();
                         return;
+                    } else if (message.startsWith("/changenick")){
+                        String previousNick = nickname;
+                        if (server.getAuthService().changeNickname(login, tmp[1])) {
+                            changeNickname(tmp[1]);
+                            server.updateNick(previousNick, tmp[1]);
+                            server.broadcast(previousNick + " change nickname to " + tmp[1]);
+                        } else {
+                            sendMessage("Server: failed to change nickname");
+                        }
                     }
                 } else {
                     server.broadcast(getCurrentTime() + " " + nickname + ": " + message);
@@ -100,6 +115,7 @@ public class ClientHandler {
                             if (!server.isNickLogged(nick)) {
                                 System.out.println(nick + " logged into chat");
                                 nickname = nick;
+                                login = parts[1];
                                 sendMessage("/auth OK");
                                 server.broadcast(nick + " is in chat");
                                 server.subscribe(this);
@@ -116,7 +132,7 @@ public class ClientHandler {
                 }
             } else {
                 sendMessage("/end");
-                System.out.println("Клиент был отключен за неактив (Прошло > 120 сек)");
+                System.out.println("The client was disconnected for inaction (More than 120 seconds passed)");
                 socket.close();
                 break;
             }

@@ -11,6 +11,7 @@ public class Server {
     private static final int PORT = 8030;
     private  List<ClientHandler> clients;
     private AuthorizationServer authorizationServer;
+    private ServerSocket server = null;
 
 
     public AuthorizationServer getAuthService() {
@@ -25,11 +26,10 @@ public class Server {
         broadcast(clientsList.toString());
     }
 
-
-
     Server() {
 
         try (ServerSocket server = new ServerSocket(PORT)) {
+            this.server = server;
             authorizationServer = new AuthorizationServer();
             clients = new ArrayList<>();
             while (true) {
@@ -40,9 +40,10 @@ public class Server {
             }
         } catch (IOException ex) {
             System.out.println("Server error");
+        } finally {
+            stopServer();
         }
     }
-
 
     public synchronized void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
@@ -58,6 +59,10 @@ public class Server {
         for (ClientHandler client : clients) {
             client.sendMessage(s);
         }
+    }
+
+    public synchronized void updateNick(String previousNick, String nickname) {
+       broadcast("/update " + previousNick + " " + nickname);
     }
 
     public synchronized void sendPrivateMessage(String fromUser, String nick, String message) {
@@ -90,4 +95,13 @@ public class Server {
         return false;
     }
 
+    private void stopServer() {
+        try {
+            broadcast("/end");
+            authorizationServer.closeConnection();
+            server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -21,7 +21,7 @@ public class ClientController {
     @FXML
     Button buttonSendMessage;
     @FXML
-    ListView clientsList;
+    ListView<String> clientsList;
     @FXML
     TextArea messages;
     @FXML
@@ -39,7 +39,7 @@ public class ClientController {
                 outputStream.writeUTF(messageArea.getText());
             }
         } catch (IOException e) {
-            messages.appendText("Сервер: ошибка отправки сообщения, попробуйте ещё раз.");
+            messages.appendText("Server: error sending message, try again");
         }
         messageArea.clear();
         messageArea.requestFocus();
@@ -62,6 +62,8 @@ public class ClientController {
                         String strFromServer = inputStream.readUTF();
                         if (strFromServer.startsWith("/clientConnected") || strFromServer.startsWith("/clientDisconnected")) {
                             updateClientsList(strFromServer);
+//                        } else if (strFromServer.startsWith("/update")) {
+//
                         } else if (strFromServer.equals("/end")) {
                             messages.appendText("Сервер отключил Вас.");
                             break;
@@ -81,23 +83,35 @@ public class ClientController {
 
     private void updateClientsList(String strFromServer) {
         String[] parts = strFromServer.split("\\s");
-        System.out.println(strFromServer);
-        if (parts[0].equals("/clientConnected")) {
-            Platform.runLater(() -> {
-                for (int i = 1; i < parts.length; i++) {
-                    if (!nickListItems.contains(parts[i])) {
-                        nickListItems.add(parts[i]);
+        switch (parts[0]) {
+//            case "/update":
+//                Platform.runLater(() -> {
+//                    for (int i = 0; i < nickListItems.size(); i++) {
+//                        if (nickListItems.contains(parts[1])) {
+//                            nickListItems.get(i).replace(parts[1], parts[2]);
+//                        }
+//                    }
+//                    clientsList.getItems().clear();//
+//                });
+//                break;
+            case "/clientConnected":
+                Platform.runLater(() -> {
+                    for (int i = 1; i < parts.length; i++) {
+                        if (!nickListItems.contains(parts[i])) {
+                            nickListItems.add(parts[i]);
+                        }
                     }
-                }
-            });
-        } else if (parts[0].equals("/clientDisconnected")) {
-            Platform.runLater(() -> {
-                nickListItems.retainAll(parts);
-                clientsList.getItems().retainAll(nickListItems);
-                clientsList.refresh();
-            });
+                });
+                break;
+            case "/clientDisconnected":
+                Platform.runLater(() -> {
+                    nickListItems.retainAll(parts);
+                    clientsList.getItems().retainAll(nickListItems);
+                });
+                break;
         }
         clientsList.setItems(nickListItems);
+        clientsList.refresh();
     }
 }
 
