@@ -9,3 +9,7 @@
 03:37 nick1: 8
 03:37 nick1: 9
 03:37 nick1: 10
+03:59 nick1: [Ljava.lang.String;@110e92fb
+04:00 nick1: [Ljava.lang.String;@2352367b
+04:03 nick1: Россия 
+04:03 nick1: д***к 

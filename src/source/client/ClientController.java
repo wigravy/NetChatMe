@@ -114,6 +114,8 @@ public class ClientController {
             long skipLines = Files.lines(path).count();
             if (skipLines > HISTORY_CAPACITY) {
                 skipLines -= HISTORY_CAPACITY;
+            } else {
+                skipLines = 0;
             }
             while (line != null) {
                 if (skipLines == 0) {

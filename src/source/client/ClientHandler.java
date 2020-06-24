@@ -18,6 +18,7 @@ public class ClientHandler {
     private final DataOutputStream dataOutputStream;
     private String nickname;
     private String login;
+    private final String[][] censoredWords = {{"дурак", "д***к"}, {"россия", "Россия"}};
 
 
     public String getNickname() {
@@ -89,7 +90,7 @@ public class ClientHandler {
                         }
                     }
                 } else {
-                    server.broadcast(getCurrentTime() + " " + nickname + ": " + message);
+                    server.broadcast(getCurrentTime() + " " + nickname + ": " + censor(message));
                 }
             }
         }
@@ -139,9 +140,25 @@ public class ClientHandler {
         }
     }
 
-    public void sendMessage(String s) {
+    public String censor(String msg) {
+        String[] temp = msg.split("\\s");
+        for (int i = 0; i < temp.length; i++) {
+            for (int j = 0; j < censoredWords.length; j++) {
+                if (temp[i].equals(censoredWords[j][0])) {
+                    temp[i] = censoredWords[j][1];
+                }
+            }
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < temp.length; i++) {
+            stringBuilder.append(temp[i]).append(" ");
+        }
+        return stringBuilder.toString();
+    }
+
+    public void sendMessage(String msg) {
         try {
-            dataOutputStream.writeUTF(s);
+            dataOutputStream.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
