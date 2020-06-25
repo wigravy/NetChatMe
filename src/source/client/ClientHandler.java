@@ -10,6 +10,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ClientHandler {
     private final Server server;
@@ -18,8 +20,6 @@ public class ClientHandler {
     private final DataOutputStream dataOutputStream;
     private String nickname;
     private String login;
-    private final String[][] censoredWords = {{"дурак", "д***к"}, {"россия", "Россия"}};
-
 
     public String getNickname() {
         return nickname;
@@ -139,19 +139,23 @@ public class ClientHandler {
             }
         }
     }
+    CensoredWords censored = new CensoredWords();
+    private final TreeMap<String, String> censoredWords = (TreeMap<String, String>) censored.getCensoredWords();
+
+
 
     public String censor(String msg) {
         String[] temp = msg.split("\\s");
         for (int i = 0; i < temp.length; i++) {
-            for (int j = 0; j < censoredWords.length; j++) {
-                if (temp[i].equals(censoredWords[j][0])) {
-                    temp[i] = censoredWords[j][1];
+            for (Map.Entry<String, String> word : censoredWords.entrySet()) {
+                if (temp[i].toLowerCase().equals(word.getKey())) {
+                    temp[i] = word.getValue();
                 }
             }
         }
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < temp.length; i++) {
-            stringBuilder.append(temp[i]).append(" ");
+        for (String s : temp) {
+            stringBuilder.append(s).append(" ");
         }
         return stringBuilder.toString();
     }
