@@ -81,7 +81,6 @@ public class Server {
                     client.sendMessage("Server: " + nick + " is offline, try later.");
                     break;
                 }
-
             }
         }
     }

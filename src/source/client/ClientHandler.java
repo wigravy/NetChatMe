@@ -2,6 +2,7 @@ package source.client;
 
 
 import source.server.Server;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class ClientHandler {
                     } else if (message.equals("/end")) {
                         closeConnection();
                         return;
-                    } else if (message.startsWith("/changenick")){
+                    } else if (message.startsWith("/changenick")) {
                         String previousNick = nickname;
                         if (server.getAuthService().changeNickname(login, tmp[1])) {
                             changeNickname(tmp[1]);
@@ -139,13 +140,13 @@ public class ClientHandler {
             }
         }
     }
+
     CensoredWords censored = new CensoredWords();
     private final TreeMap<String, String> censoredWords = (TreeMap<String, String>) censored.getCensoredWords();
 
 
-
     public String censor(String msg) {
-        String[] temp = msg.split("\\s");
+        String[] temp = msg.split("(?<=\\b|[^\\p{L}])", 0);
         for (int i = 0; i < temp.length; i++) {
             for (Map.Entry<String, String> word : censoredWords.entrySet()) {
                 if (temp[i].toLowerCase().equals(word.getKey())) {
@@ -155,10 +156,11 @@ public class ClientHandler {
         }
         StringBuilder stringBuilder = new StringBuilder();
         for (String s : temp) {
-            stringBuilder.append(s).append(" ");
+            stringBuilder.append(s);
         }
         return stringBuilder.toString();
     }
+
 
     public void sendMessage(String msg) {
         try {
@@ -167,6 +169,4 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
-
-
 }
