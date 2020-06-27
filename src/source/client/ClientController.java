@@ -92,23 +92,32 @@ public class ClientController {
 
     private void saveChatHistory(String message) {
         message += "\n";
+        FileWriter fileWriter = null;
         try {
-            FileWriter fileWriter = new FileWriter(history, true);
+            fileWriter = new FileWriter(history, true);
             fileWriter.write(message);
             fileWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (fileWriter != null) {
+                    fileWriter.flush();
+                }
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void loadChatHistory() {
+        FileReader fileReader = null;
+        BufferedReader bufferedReader = null;
         try {
-            if (!history.isFile()) {
-                history.createNewFile();
-            }
-
-            FileReader fileReader = new FileReader(history);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            history.createNewFile();
+            fileReader = new FileReader(history);
+            bufferedReader = new BufferedReader(fileReader);
             String line = bufferedReader.readLine();
             Path path = Paths.get(String.valueOf(history));
             long skipLines = Files.lines(path).count();
@@ -129,6 +138,17 @@ public class ClientController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+                if (fileReader != null) {
+                    fileReader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
