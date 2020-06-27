@@ -2,6 +2,7 @@ package source.client;
 
 
 import source.server.Server;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ClientHandler {
     private final Server server;
@@ -18,7 +21,6 @@ public class ClientHandler {
     private final DataOutputStream dataOutputStream;
     private String nickname;
     private String login;
-
 
     public String getNickname() {
         return nickname;
@@ -78,7 +80,7 @@ public class ClientHandler {
                     } else if (message.equals("/end")) {
                         closeConnection();
                         return;
-                    } else if (message.startsWith("/changenick")){
+                    } else if (message.startsWith("/changenick")) {
                         String previousNick = nickname;
                         if (server.getAuthService().changeNickname(login, tmp[1])) {
                             changeNickname(tmp[1]);
@@ -89,7 +91,7 @@ public class ClientHandler {
                         }
                     }
                 } else {
-                    server.broadcast(getCurrentTime() + " " + nickname + ": " + message);
+                    server.broadcast(getCurrentTime() + " " + nickname + ": " + censor(message));
                 }
             }
         }
@@ -139,13 +141,32 @@ public class ClientHandler {
         }
     }
 
-    public void sendMessage(String s) {
+    CensoredWords censored = new CensoredWords();
+    private final TreeMap<String, String> censoredWords = (TreeMap<String, String>) censored.getCensoredWords();
+
+
+    public String censor(String msg) {
+        String[] temp = msg.split("(?<=\\b|[^\\p{L}])", 0);
+        for (int i = 0; i < temp.length; i++) {
+            for (Map.Entry<String, String> word : censoredWords.entrySet()) {
+                if (temp[i].toLowerCase().equals(word.getKey())) {
+                    temp[i] = word.getValue();
+                }
+            }
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s : temp) {
+            stringBuilder.append(s);
+        }
+        return stringBuilder.toString();
+    }
+
+
+    public void sendMessage(String msg) {
         try {
-            dataOutputStream.writeUTF(s);
+            dataOutputStream.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
 }

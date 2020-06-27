@@ -13,8 +13,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class ClientController {
@@ -26,6 +30,9 @@ public class ClientController {
     TextArea messages;
     @FXML
     TextField messageArea;
+
+    private File history = new File("src/resources/history.txt");
+    private final int HISTORY_CAPACITY = 100; //This means 100 lines of text.
 
     private DataInputStream inputStream = Main.getInputStream();
     private DataOutputStream outputStream = Main.getOutputStream();
@@ -57,6 +64,7 @@ public class ClientController {
     private void start() {
         Thread thread = new Thread(() -> {
             try {
+                loadChatHistory();
                 while (socket.isConnected()) {
                     if (inputStream.available() > 0) {
                         String strFromServer = inputStream.readUTF();
@@ -69,6 +77,7 @@ public class ClientController {
                             break;
                         } else {
                             messages.appendText(strFromServer);
+                            saveChatHistory(strFromServer);
                             messages.appendText("\n");
                         }
                     }
@@ -79,6 +88,49 @@ public class ClientController {
         });
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void saveChatHistory(String message) {
+        message += "\n";
+        try {
+            FileWriter fileWriter = new FileWriter(history, true);
+            fileWriter.write(message);
+            fileWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadChatHistory() {
+        try {
+            if (!history.isFile()) {
+                history.createNewFile();
+            }
+
+            FileReader fileReader = new FileReader(history);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line = bufferedReader.readLine();
+            Path path = Paths.get(String.valueOf(history));
+            long skipLines = Files.lines(path).count();
+            if (skipLines > HISTORY_CAPACITY) {
+                skipLines -= HISTORY_CAPACITY;
+            } else {
+                skipLines = 0;
+            }
+            while (line != null) {
+                if (skipLines == 0) {
+                    messages.appendText(line);
+                    messages.appendText("\n");
+                    line = bufferedReader.readLine();
+                } else {
+                    line = bufferedReader.readLine();
+                    skipLines--;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void updateClientsList(String strFromServer) {
